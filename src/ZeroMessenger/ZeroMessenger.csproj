@@ -19,4 +19,17 @@
         <PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="6.0.0" />
     </ItemGroup>
 
+  <!-- NuGet Packaging -->
+
+  <PropertyGroup>
+    <PackageTags>pubsub;eventaggregator;</PackageTags>
+    <Description>Zero-allocation, extremely fast in-memory messaging library for .NET and Unity.</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="../../Icon.png" Pack="true" PackagePath="/" />
+    <None Include="..\..\README.md" Pack="true" PackagePath="README.md"/>
+    <EmbeddedResource Include="..\..\LICENSE" />
+  </ItemGroup>
+
 </Project>
