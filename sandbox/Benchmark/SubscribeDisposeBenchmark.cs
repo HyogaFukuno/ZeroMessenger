@@ -2,6 +2,7 @@ using BenchmarkDotNet.Attributes;
 using MessagePipe;
 using Microsoft.Extensions.DependencyInjection;
 using R3;
+using VitalRouter;
 using ZeroMessenger;
 
 [MemoryDiagnoser]
@@ -12,8 +13,11 @@ public class SubscribeDisposeBenchmark
     IDisposable[] disposables = default!;
 
     MessagePipe.ISubscriber<TestMessage> messagePipeSubscriber = default!;
-    ZeroMessenger.IMessageSubscriber<TestMessage> zeroMessengerSubscriber = default!;
+    ZeroMessenger.MessageBroker<TestMessage> zeroMessageBroker = default!;
     R3.Subject<TestMessage> r3Subject = default!;
+    System.Reactive.Subjects.Subject<TestMessage> rxNetSubject = default!;
+    Prism.Events.PubSubEvent<TestMessage> prismEvent = default!;
+    VitalRouter.ICommandSubscribable vitalRouter = default!;
 
     [GlobalSetup]
     public void GlobalSetup()
@@ -28,11 +32,25 @@ public class SubscribeDisposeBenchmark
     public void Setup()
     {
         disposables = new IDisposable[Count];
+        zeroMessageBroker = new ZeroMessenger.MessageBroker<TestMessage>();
         messagePipeSubscriber = GlobalMessagePipe.GetSubscriber<TestMessage>();
-        zeroMessengerSubscriber = new ZeroMessenger.MessageBroker<TestMessage>();
         r3Subject = new();
+        rxNetSubject = new();
+        prismEvent = new EventAggregator().GetEvent<TestMessage>();
+        vitalRouter = new Router();
+    }
 
-        GC.Collect();
+    [Benchmark(Description = "Subscribe (ZeroMessenger)")]
+    public void Benchmark_ZeroMessenger()
+    {
+        for (int i = 0; i < Count; i++)
+        {
+            disposables[i] = zeroMessageBroker.Subscribe(x => { });
+        }
+        for (int i = 0; i < Count; i++)
+        {
+            disposables[i].Dispose();
+        }
     }
 
     [Benchmark(Description = "Subscribe (MessagePipe)")]
@@ -48,12 +66,12 @@ public class SubscribeDisposeBenchmark
         }
     }
 
-    [Benchmark(Description = "Subscribe (ZeroMessenger)")]
-    public void Benchmark_ZeroMessenger()
+    [Benchmark(Description = "Subscribe (R3 Subject)")]
+    public void Benchmark_R3Subject()
     {
         for (int i = 0; i < Count; i++)
         {
-            disposables[i] = zeroMessengerSubscriber.Subscribe(x => { });
+            disposables[i] = r3Subject.Subscribe(x => { });
         }
         for (int i = 0; i < Count; i++)
         {
@@ -61,13 +79,38 @@ public class SubscribeDisposeBenchmark
         }
     }
 
-
-    [Benchmark(Description = "Subscribe (R3.Subject)")]
-    public void Benchmark_R3Subject()
+    [Benchmark(Description = "Subscribe (System.Reactive Subject)")]
+    public void Benchmark_RxNetSubject()
     {
         for (int i = 0; i < Count; i++)
         {
-            disposables[i] = r3Subject.Subscribe(x => { });
+            disposables[i] = rxNetSubject.Subscribe(x => { });
+        }
+        for (int i = 0; i < Count; i++)
+        {
+            disposables[i].Dispose();
+        }
+    }
+
+    [Benchmark(Description = "Subscribe (Prism)")]
+    public void Benchmark_Prism()
+    {
+        for (int i = 0; i < Count; i++)
+        {
+            disposables[i] = prismEvent.Subscribe(x => { });
+        }
+        for (int i = 0; i < Count; i++)
+        {
+            disposables[i].Dispose();
+        }
+    }
+
+    [Benchmark(Description = "Subscribe (VitalRouter)")]
+    public void Benchmark_VitalRouter()
+    {
+        for (int i = 0; i < Count; i++)
+        {
+            disposables[i] = vitalRouter.Subscribe<TestMessage>((c, context) => {  });
         }
         for (int i = 0; i < Count; i++)
         {
