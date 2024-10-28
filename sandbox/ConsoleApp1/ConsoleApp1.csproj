@@ -1,0 +1,20 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\ZeroMessenger\ZeroMessenger.csproj" />
+    <ProjectReference Include="..\..\src\ZeroMessenger.DependencyInjection\ZeroMessenger.DependencyInjection.csproj" />
+    <ProjectReference Include="..\..\src\ZeroMessenger.R3\ZeroMessenger.R3.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="R3" Version="1.2.9" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+</Project>

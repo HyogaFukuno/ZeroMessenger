@@ -1,0 +1,13 @@
+{
+    "name": "com.annulusgames.zero-messenger.vcontainer",
+    "version": "1.0.0",
+    "displayName": "ZeroMessenger.VContainer",
+    "description": "ZeroMessenger integration for VContainer",
+    "category": "Scripting",
+    "dependencies": {
+    },
+    "license": "MIT",
+    "author": {
+        "name": "Annulus Games"
+    }
+}
