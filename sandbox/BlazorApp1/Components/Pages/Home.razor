@@ -1,0 +1,17 @@
+﻿@page "/"
+
+<PageTitle>Home</PageTitle>
+
+<h1>ZeroMessenger Test</h1>
+
+<form method="post" @onsubmit="OnSubmit" @formname="test-form">
+    <AntiforgeryToken />
+    <div>
+        <label>
+            <InputText @bind-Value="TextInput" />
+        </label>
+    </div>
+    <div>
+        <button type="submit">Submit</button>
+    </div>
+</form>
