@@ -8,6 +8,16 @@ public static class MessageSubscriberR3Extensions
     {
         return new ObservableSubscriber<T>(subscriber);
     }
+
+    public static IDisposable SubscribeToPublish<T>(this Observable<T> source, IMessagePublisher<T> publisher)
+    {
+        return source.Subscribe(publisher, (x, p) => p.Publish(x));
+    }
+
+    public static IDisposable SubscribeAwaitToPublish<T>(this Observable<T> source, IMessagePublisher<T> publisher, AwaitOperation awaitOperation = AwaitOperation.Sequential, AsyncPublishStrategy publishStrategy = AsyncPublishStrategy.Parallel)
+    {
+        return source.SubscribeAwait(async (x, ct) => await publisher.PublishAsync(x, publishStrategy, ct), awaitOperation);
+    }
 }
 
 internal sealed class ObservableSubscriber<T>(IMessageSubscriber<T> subscriber) : Observable<T>
