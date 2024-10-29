@@ -28,9 +28,9 @@ subscription.Dispose();
 
 public readonly record struct TestMessage(int Value);
 
-public class LoggingFilter<T> : MessageFilter<T>
+public class LoggingFilter<T> : IMessageFilter<T>
 {
-    public override async ValueTask InvokeAsync(T message, CancellationToken cancellationToken, Func<T, CancellationToken, ValueTask> next)
+    public async ValueTask InvokeAsync(T message, CancellationToken cancellationToken, Func<T, CancellationToken, ValueTask> next)
     {
         Console.WriteLine("Before");
         await next(message, cancellationToken);

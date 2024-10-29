@@ -24,18 +24,18 @@ public static class ServiceCollectionExtensions
 
 public readonly struct MessageBrokerBuilder(IServiceCollection services)
 {
-    public void AddFilter<TFilter>() where TFilter : MessageFilterBase
+    public void AddFilter<TFilter>() where TFilter : class, IMessageFilterBase
     {
-        services.AddTransient<MessageFilterBase, TFilter>();
+        services.AddTransient<IMessageFilterBase, TFilter>();
     }
 
-    public void AddFilter<TFilter>(TFilter filter) where TFilter : MessageFilterBase
+    public void AddFilter<TFilter>(TFilter filter) where TFilter : class, IMessageFilterBase
     {
-        services.AddSingleton<MessageFilterBase>(filter);
+        services.AddSingleton<IMessageFilterBase>(filter);
     }
 
     public void AddFilter(Type type)
     {
-        services.AddTransient(typeof(MessageFilter<>), type);
+        services.AddTransient(typeof(IMessageFilter<>), type);
     }
 }

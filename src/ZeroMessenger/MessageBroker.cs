@@ -13,7 +13,7 @@ public class MessageBroker<T> : IMessagePublisher<T>, IMessageSubscriber<T>, IDi
     readonly MessageHandlerList<T> asyncHandlers;
 
     bool isDisposed;
-    FastListCore<MessageFilter<T>> globalFilters;
+    FastListCore<IMessageFilter<T>> globalFilters;
 
     public bool IsDisposed => isDisposed;
 
@@ -164,12 +164,12 @@ public class MessageBroker<T> : IMessagePublisher<T>, IMessageSubscriber<T>, IDi
         return handler;
     }
 
-    public void AddFilter<TFilter>(TFilter filter) where TFilter : MessageFilter<T>
+    public void AddFilter<TFilter>(TFilter filter) where TFilter : IMessageFilter<T>
     {
         globalFilters.Add(filter);
     }
 
-    public void AddFilter<TFilter>() where TFilter : MessageFilter<T>, new()
+    public void AddFilter<TFilter>() where TFilter : IMessageFilter<T>, new()
     {
         globalFilters.Add(new TFilter());
     }
