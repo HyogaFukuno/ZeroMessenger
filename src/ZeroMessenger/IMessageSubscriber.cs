@@ -1,5 +1,8 @@
+using ZeroMessenger.Internal;
+
 namespace ZeroMessenger;
 
+[Preserve]
 public interface IMessageSubscriber<T>
 {
     IDisposable Subscribe(MessageHandler<T> handler);

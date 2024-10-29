@@ -17,6 +17,7 @@ public class MessageBroker<T> : IMessagePublisher<T>, IMessageSubscriber<T>, IDi
 
     public bool IsDisposed => isDisposed;
 
+    [Preserve]
     public MessageBroker(MessageFilterProvider<T>? filterProvider = null)
     {
         gate = new();

@@ -1,6 +1,7 @@
 namespace ZeroMessenger.Internal;
 
 [Preserve]
+[method: Preserve]
 public sealed class MessageBrokerPublisher<T>(MessageBroker<T> messageBroker) : IMessagePublisher<T>
 {
     public void Publish(T message, CancellationToken cancellationToken = default)
@@ -15,6 +16,7 @@ public sealed class MessageBrokerPublisher<T>(MessageBroker<T> messageBroker) : 
 }
 
 [Preserve]
+[method: Preserve]
 public sealed class MessageBrokerSubscriber<T>(MessageBroker<T> messageBroker) : IMessageSubscriber<T>
 {
     public IDisposable Subscribe(MessageHandler<T> handler)

@@ -3,6 +3,7 @@ namespace ZeroMessenger.Internal;
 // for Dependency Injection
 
 [Preserve]
+[method: Preserve]
 public sealed class MessageFilterProvider<T>(IEnumerable<IMessageFilterBase> untypedFilters, IEnumerable<IMessageFilter<T>> typedFilters)
 {
     readonly IMessageFilter<T>[] filters = untypedFilters
