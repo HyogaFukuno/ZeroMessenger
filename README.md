@@ -410,6 +410,9 @@ public class ExampleLifetimeScope : LifetimeScope
 }
 ```
 
+> [!NOTE]
+> `AddZeroMessenger()` registers using Open Generics, which may not work with IL2CPP versions prior to Unity 2022.1.
+
 ## License
 
 This library is released under the [MIT License](LICENSE).

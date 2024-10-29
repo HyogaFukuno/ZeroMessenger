@@ -410,6 +410,9 @@ public class ExampleLifetimeScope : LifetimeScope
 }
 ```
 
+> [!NOTE]
+> `AddZeroMessenger()`はOpen Genericsを利用した登録を行います。これはUnity 2022.1より前のバージョンのIL2CPPで動作しない可能性があります。
+
 ## ライセンス
 
 このライブラリは[MITライセンス](LICENSE)の下に公開されています。
