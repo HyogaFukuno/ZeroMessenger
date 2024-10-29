@@ -5,12 +5,12 @@ namespace ZeroMessenger.DependencyInjection;
 
 public static class ServiceCollectionExtensions
 {
-    public static void AddZeroMessenger(this IServiceCollection services)
+    public static IServiceCollection AddZeroMessenger(this IServiceCollection services)
     {
-        AddZeroMessenger(services, _ => { });
+        return AddZeroMessenger(services, _ => { });
     }
 
-    public static void AddZeroMessenger(this IServiceCollection services, Action<MessageBrokerBuilder> configuration)
+    public static IServiceCollection AddZeroMessenger(this IServiceCollection services, Action<MessageBrokerBuilder> configuration)
     {
         var builder = new MessageBrokerBuilder(services);
         configuration(builder);
@@ -19,6 +19,8 @@ public static class ServiceCollectionExtensions
         services.AddSingleton(typeof(IMessagePublisher<>), typeof(MessageBrokerPublisher<>));
         services.AddSingleton(typeof(IMessageSubscriber<>), typeof(MessageBrokerSubscriber<>));
         services.AddSingleton(typeof(MessageFilterProvider<>));
+
+        return services;
     }
 }
 
