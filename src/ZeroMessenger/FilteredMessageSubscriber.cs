@@ -1,10 +1,10 @@
 
 namespace ZeroMessenger;
 
-internal sealed class FilteredMessageSubscriber<TMessage>(IMessageSubscriber<TMessage> subscriber, MessageFilter<TMessage>[] filters) : IMessageSubscriber<TMessage>
+internal sealed class FilteredMessageSubscriber<TMessage>(IMessageSubscriber<TMessage> subscriber, IMessageFilter<TMessage>[] filters) : IMessageSubscriber<TMessage>
 {
     public IMessageSubscriber<TMessage> Subscriber { get; } = subscriber;
-    public MessageFilter<TMessage>[] Filters { get; } = filters;
+    public IMessageFilter<TMessage>[] Filters { get; } = filters;
 
     public IDisposable Subscribe(MessageHandler<TMessage> handler)
     {

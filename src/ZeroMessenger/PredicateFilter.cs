@@ -2,9 +2,9 @@
 
 namespace ZeroMessenger;
 
-public sealed class PredicateFilter<T>(Predicate<T> predicate) : MessageFilter<T>
+public sealed class PredicateFilter<T>(Predicate<T> predicate) : IMessageFilter<T>
 {
-    public override ValueTask InvokeAsync(T message, CancellationToken cancellationToken, Func<T, CancellationToken, ValueTask> next)
+    public ValueTask InvokeAsync(T message, CancellationToken cancellationToken, Func<T, CancellationToken, ValueTask> next)
     {
         if (predicate(message))
         {

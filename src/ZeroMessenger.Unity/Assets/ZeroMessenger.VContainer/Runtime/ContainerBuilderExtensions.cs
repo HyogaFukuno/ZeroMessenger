@@ -32,19 +32,19 @@ namespace ZeroMessenger.VContainer
             this.builder = builder;
         }
 
-        public void AddFilter<TFilter>() where TFilter : MessageFilterBase
+        public void AddFilter<TFilter>() where TFilter : class, IMessageFilterBase
         {
-            builder.Register<MessageFilterBase, TFilter>(Lifetime.Transient);
+            builder.Register<IMessageFilterBase, TFilter>(Lifetime.Transient);
         }
 
-        public void AddFilter<TFilter>(TFilter filter) where TFilter : MessageFilterBase
+        public void AddFilter<TFilter>(TFilter filter) where TFilter : class, IMessageFilterBase
         {
-            builder.RegisterInstance<MessageFilterBase>(filter);
+            builder.RegisterInstance<IMessageFilterBase>(filter);
         }
 
         public void AddFilter(Type type)
         {
-            builder.Register(typeof(MessageFilter<>), type, Lifetime.Transient);
+            builder.Register(typeof(IMessageFilter<>), type, Lifetime.Transient);
         }
     }
 }

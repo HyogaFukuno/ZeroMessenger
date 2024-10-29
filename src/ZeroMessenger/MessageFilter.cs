@@ -2,12 +2,12 @@ using ZeroMessenger.Internal;
 
 namespace ZeroMessenger;
 
-public abstract class MessageFilterBase
+public interface IMessageFilterBase
 {
 }
 
 [Preserve]
-public abstract class MessageFilter<T> : MessageFilterBase
+public interface IMessageFilter<T> : IMessageFilterBase
 {
     public abstract ValueTask InvokeAsync(T message, CancellationToken cancellationToken, Func<T, CancellationToken, ValueTask> next);
 }

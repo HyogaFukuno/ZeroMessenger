@@ -3,15 +3,15 @@ namespace ZeroMessenger.Internal;
 // for Dependency Injection
 
 [Preserve]
-public sealed class MessageFilterProvider<T>(IEnumerable<MessageFilterBase> untypedFilters, IEnumerable<MessageFilter<T>> typedFilters)
+public sealed class MessageFilterProvider<T>(IEnumerable<IMessageFilterBase> untypedFilters, IEnumerable<IMessageFilter<T>> typedFilters)
 {
-    readonly MessageFilter<T>[] filters = untypedFilters
-        .OfType<MessageFilter<T>>()
+    readonly IMessageFilter<T>[] filters = untypedFilters
+        .OfType<IMessageFilter<T>>()
         .Concat(typedFilters)
         .Distinct()
         .ToArray();
 
-    public IEnumerable<MessageFilter<T>> GetGlobalFilters()
+    public IEnumerable<IMessageFilter<T>> GetGlobalFilters()
     {
         return filters;
     }

@@ -1,14 +1,14 @@
 
 namespace ZeroMessenger;
 
-internal sealed class FilteredMessageHandler<T>(MessageHandler<T> handler, MessageFilter<T>[] filters) : AsyncMessageHandler<T>
+internal sealed class FilteredMessageHandler<T>(MessageHandler<T> handler, IMessageFilter<T>[] filters) : AsyncMessageHandler<T>
 {
     protected override ValueTask HandleAsyncCore(T message, CancellationToken cancellationToken = default)
     {
         return new FilterIterator(handler, filters).InvokeRecursiveAsync(message, cancellationToken);
     }
 
-    struct FilterIterator(MessageHandler<T> handler, MessageFilter<T>[] filters)
+    struct FilterIterator(MessageHandler<T> handler, IMessageFilter<T>[] filters)
     {
         int index;
 
@@ -23,7 +23,7 @@ internal sealed class FilteredMessageHandler<T>(MessageHandler<T> handler, Messa
             return default;
         }
 
-        bool MoveNextFilter(out MessageFilter<T> next)
+        bool MoveNextFilter(out IMessageFilter<T> next)
         {
             while (index < filters.Length)
             {
@@ -38,14 +38,14 @@ internal sealed class FilteredMessageHandler<T>(MessageHandler<T> handler, Messa
     }
 }
 
-internal sealed class FilteredAsyncMessageHandler<T>(AsyncMessageHandler<T> handler, MessageFilter<T>[] filters) : AsyncMessageHandler<T>
+internal sealed class FilteredAsyncMessageHandler<T>(AsyncMessageHandler<T> handler, IMessageFilter<T>[] filters) : AsyncMessageHandler<T>
 {
     protected override ValueTask HandleAsyncCore(T message, CancellationToken cancellationToken = default)
     {
         return new FilterIterator(handler, filters).InvokeRecursiveAsync(message, cancellationToken);
     }
 
-    struct FilterIterator(AsyncMessageHandler<T> handler, MessageFilter<T>[] filters)
+    struct FilterIterator(AsyncMessageHandler<T> handler, IMessageFilter<T>[] filters)
     {
         int index;
 
@@ -59,7 +59,7 @@ internal sealed class FilteredAsyncMessageHandler<T>(AsyncMessageHandler<T> hand
             return handler.HandleAsync(message);
         }
 
-        bool MoveNextFilter(out MessageFilter<T> next)
+        bool MoveNextFilter(out IMessageFilter<T> next)
         {
             while (index < filters.Length)
             {
