@@ -1,5 +1,8 @@
-﻿namespace ZeroMessenger;
+﻿using ZeroMessenger.Internal;
 
+namespace ZeroMessenger;
+
+[Preserve]
 public interface IMessagePublisher<T>
 {
     void Publish(T message, CancellationToken cancellationToken = default);
