@@ -19,7 +19,7 @@ Zero Messengerはパフォーマンスを重視して実装されており、`Pu
 
 また、メッセージのパイプラインを構築する際のアロケーションも他のライブラリと比べて少なくなるように設計されています。以下は`Subscribe/Dispose`を10000回実行するベンチマークの結果です。
 
-![img](docs/img_benchmark_publish.png)
+![img](docs/img_benchmark_subscribe.png)
 
 ## インストール
 

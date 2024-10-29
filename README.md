@@ -19,7 +19,7 @@ Zero Messenger is designed with performance as a priority, achieving faster `Pub
 
 Additionally, it minimizes allocations when constructing message pipelines compared to other libraries. Below is a benchmark result from executing `Subscribe/Dispose` 10,000 times.
 
-![img](docs/img_benchmark_publish.png)
+![img](docs/img_benchmark_subscribe.png)
 
 ## Installation
 
