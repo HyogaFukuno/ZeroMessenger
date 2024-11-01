@@ -8,6 +8,11 @@ internal sealed class FilteredMessageHandler<T>(MessageHandler<T> handler, IMess
         return new FilterIterator(handler, filters).InvokeRecursiveAsync(message, cancellationToken);
     }
 
+    protected override void DisposeCore()
+    {
+        handler.Dispose();
+    }
+
     struct FilterIterator(MessageHandler<T> handler, IMessageFilter<T>[] filters)
     {
         int index;

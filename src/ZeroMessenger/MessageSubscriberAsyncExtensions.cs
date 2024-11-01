@@ -113,9 +113,8 @@ internal class AsyncEnumerableMessageHandler<T>(ChannelWriter<T> writer) : Messa
         writer.TryWrite(message);
     }
 
-    public override void Dispose()
+    protected override void DisposeCore()
     {
-        base.Dispose();
         registration.Dispose();
     }
 }
