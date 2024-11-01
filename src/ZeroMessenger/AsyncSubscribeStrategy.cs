@@ -14,7 +14,7 @@ internal sealed class SequentialAsyncMessageHandler<T>(AsyncMessageHandler<T> ha
 
     protected override async ValueTask HandleAsyncCore(T message, CancellationToken cancellationToken = default)
     {
-        await publishLock.WaitAsync();
+        await publishLock.WaitAsync(cancellationToken);
         try
         {
             await handler.HandleAsync(message, cancellationToken);
@@ -25,9 +25,8 @@ internal sealed class SequentialAsyncMessageHandler<T>(AsyncMessageHandler<T> ha
         }
     }
 
-    public override void Dispose()
+    protected override void DisposeCore()
     {
-        base.Dispose();
         publishLock.Dispose();
     }
 }

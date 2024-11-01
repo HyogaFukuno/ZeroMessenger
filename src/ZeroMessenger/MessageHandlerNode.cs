@@ -12,12 +12,20 @@ public abstract class MessageHandlerNode<T> : IDisposable
     bool disposed;
     public bool IsDisposed => disposed;
 
-    public virtual void Dispose()
+    public void Dispose()
     {
         ThrowHelper.ThrowObjectDisposedIf(IsDisposed, typeof(MessageHandlerNode<T>));
 
-        Parent.Remove(this);
+        if (Parent != null)
+        {
+            Parent.Remove(this);
+            Volatile.Write(ref Parent!, null);
+        }
+
         Volatile.Write(ref disposed, true);
-        Volatile.Write(ref Parent!, null);
+
+        DisposeCore();
     }
+
+    protected virtual void DisposeCore() { }
 }
