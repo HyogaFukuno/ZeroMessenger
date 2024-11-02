@@ -134,7 +134,6 @@ public class MessageBroker<T> : IMessagePublisher<T>, IMessageSubscriber<T>, IDi
         ThrowHelper.ThrowObjectDisposedIf(handler.IsDisposed, typeof(AsyncMessageHandler<T>));
         ThrowHelper.ThrowIfMessageHandlerIsAssigned(handler);
 
-
         if (globalFilters.Length > 0)
         {
             return SubscribeAwaitCore(new FilteredAsyncMessageHandler<T>(handler, globalFilters.AsSpan().ToArray()), AsyncSubscribeStrategy.Sequential);
