@@ -1,6 +1,6 @@
 {
     "name": "com.annulusgames.zero-messenger.vcontainer",
-    "version": "1.0.1",
+    "version": "1.0.2",
     "displayName": "ZeroMessenger.VContainer",
     "description": "VContainer extensions for ZeroMessenger",
     "category": "Scripting",
