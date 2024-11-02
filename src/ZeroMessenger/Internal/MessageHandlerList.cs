@@ -107,21 +107,10 @@ internal sealed class MessageHandlerList<T>(object gate) : IDisposable
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public ulong GetVersion()
     {
-        ulong currentVersion;
-        if (version == ulong.MaxValue)
+        lock (gate)
         {
-            ResetAllHandlerVersion();
-            currentVersion = 0;
-        }
-        else
-        {
-            currentVersion = version++;
-        }
-        return currentVersion;
-
-        void ResetAllHandlerVersion()
-        {
-            lock (gate)
+            ulong currentVersion;
+            if (version == ulong.MaxValue)
             {
                 var node = root;
                 while (node != null)
@@ -131,7 +120,14 @@ internal sealed class MessageHandlerList<T>(object gate) : IDisposable
                 }
 
                 version = 1; // also reset version
+
+                currentVersion = 0;
             }
+            else
+            {
+                currentVersion = version++;
+            }
+            return currentVersion;
         }
     }
 }
