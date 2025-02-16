@@ -1,11 +1,22 @@
+using System.Collections.Concurrent;
+using System.Runtime.CompilerServices;
 
 namespace ZeroMessenger;
 
 internal sealed class FilteredMessageHandler<T>(MessageHandler<T> handler, IMessageFilter<T>[] filters) : AsyncMessageHandler<T>
 {
-    protected override ValueTask HandleAsyncCore(T message, CancellationToken cancellationToken = default)
+    protected override async ValueTask HandleAsyncCore(T message, CancellationToken cancellationToken = default)
     {
-        return new FilterIterator(handler, filters).InvokeRecursiveAsync(message, cancellationToken);
+        var iterator = FilterIterator.Rent(handler, filters);
+
+        try
+        {
+            await iterator.InvokeRecursiveAsync(message, cancellationToken);
+        }
+        finally
+        {
+            FilterIterator.Return(iterator);
+        }
     }
 
     protected override void DisposeCore()
@@ -15,17 +26,39 @@ internal sealed class FilteredMessageHandler<T>(MessageHandler<T> handler, IMess
 
     sealed class FilterIterator
     {
-        readonly MessageHandler<T> handler;
-        readonly IMessageFilter<T>[] filters;
-        readonly Func<T, CancellationToken, ValueTask> invokeDelegate;
+        static readonly ConcurrentStack<FilterIterator> pool = new();
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static FilterIterator Rent(MessageHandler<T> handler, IMessageFilter<T>[] filters)
+        {
+            if (!pool.TryPop(out var iterator))
+            {
+                iterator = new();
+            }
+
+            iterator.handler = handler;
+            iterator.filters = filters;
+
+            return iterator;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void Return(FilterIterator iterator)
+        {
+            iterator.handler = null;
+            iterator.filters = null;
+            pool.Push(iterator);
+        }
+
+        MessageHandler<T>? handler;
+        IMessageFilter<T>[]? filters;
         int index;
 
-        public FilterIterator(MessageHandler<T> handler, IMessageFilter<T>[] filters)
+        readonly Func<T, CancellationToken, ValueTask> invokeDelegate;
+
+        public FilterIterator()
         {
-            this.handler = handler;
-            this.filters = filters;
-            this.invokeDelegate = InvokeRecursiveAsync;
+            invokeDelegate = InvokeRecursiveAsync;
         }
 
         public ValueTask InvokeRecursiveAsync(T message, CancellationToken cancellationToken)
@@ -35,13 +68,13 @@ internal sealed class FilteredMessageHandler<T>(MessageHandler<T> handler, IMess
                 return filter.InvokeAsync(message, cancellationToken, invokeDelegate);
             }
 
-            handler.Handle(message);
+            handler!.Handle(message);
             return default;
         }
 
         bool MoveNextFilter(out IMessageFilter<T> next)
         {
-            while (index < filters.Length)
+            while (index < filters!.Length)
             {
                 next = filters[index];
                 index++;
@@ -56,23 +89,54 @@ internal sealed class FilteredMessageHandler<T>(MessageHandler<T> handler, IMess
 
 internal sealed class FilteredAsyncMessageHandler<T>(AsyncMessageHandler<T> handler, IMessageFilter<T>[] filters) : AsyncMessageHandler<T>
 {
-    protected override ValueTask HandleAsyncCore(T message, CancellationToken cancellationToken = default)
+    protected override async ValueTask HandleAsyncCore(T message, CancellationToken cancellationToken = default)
     {
-        return new FilterIterator(handler, filters).InvokeRecursiveAsync(message, cancellationToken);
+        var iterator = FilterIterator.Rent(handler, filters);
+
+        try
+        {
+            await iterator.InvokeRecursiveAsync(message, cancellationToken);
+        }
+        finally
+        {
+            FilterIterator.Return(iterator);
+        }
     }
 
     sealed class FilterIterator
     {
-        readonly AsyncMessageHandler<T> handler;
-        readonly IMessageFilter<T>[] filters;
-        readonly Func<T, CancellationToken, ValueTask> invokeDelegate;
+        static readonly ConcurrentStack<FilterIterator> pool = new();
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static FilterIterator Rent(AsyncMessageHandler<T> handler, IMessageFilter<T>[] filters)
+        {
+            if (!pool.TryPop(out var iterator))
+            {
+                iterator = new();
+            }
+
+            iterator.handler = handler;
+            iterator.filters = filters;
+
+            return iterator;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void Return(FilterIterator iterator)
+        {
+            iterator.handler = null;
+            iterator.filters = null;
+            pool.Push(iterator);
+        }
+
+        AsyncMessageHandler<T>? handler;
+        IMessageFilter<T>[]? filters;
         int index;
 
-        public FilterIterator(AsyncMessageHandler<T> handler, IMessageFilter<T>[] filters)
+        readonly Func<T, CancellationToken, ValueTask> invokeDelegate;
+
+        public FilterIterator()
         {
-            this.handler = handler;
-            this.filters = filters;
             invokeDelegate = InvokeRecursiveAsync;
         }
 
@@ -83,12 +147,12 @@ internal sealed class FilteredAsyncMessageHandler<T>(AsyncMessageHandler<T> hand
                 return filter.InvokeAsync(message, cancellationToken, invokeDelegate);
             }
 
-            return handler.HandleAsync(message, cancellationToken);
+            return handler!.HandleAsync(message, cancellationToken);
         }
 
         bool MoveNextFilter(out IMessageFilter<T> next)
         {
-            while (index < filters.Length)
+            while (index < filters!.Length)
             {
                 next = filters[index];
                 index++;
