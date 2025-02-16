@@ -13,15 +13,26 @@ internal sealed class FilteredMessageHandler<T>(MessageHandler<T> handler, IMess
         handler.Dispose();
     }
 
-    struct FilterIterator(MessageHandler<T> handler, IMessageFilter<T>[] filters)
+    sealed class FilterIterator
     {
+        readonly MessageHandler<T> handler;
+        readonly IMessageFilter<T>[] filters;
+        readonly Func<T, CancellationToken, ValueTask> invokeDelegate;
+
         int index;
+
+        public FilterIterator(MessageHandler<T> handler, IMessageFilter<T>[] filters)
+        {
+            this.handler = handler;
+            this.filters = filters;
+            this.invokeDelegate = InvokeRecursiveAsync;
+        }
 
         public ValueTask InvokeRecursiveAsync(T message, CancellationToken cancellationToken)
         {
             if (MoveNextFilter(out var filter))
             {
-                return filter.InvokeAsync(message, cancellationToken, InvokeRecursiveAsync);
+                return filter.InvokeAsync(message, cancellationToken, invokeDelegate);
             }
 
             handler.Handle(message);
@@ -50,18 +61,29 @@ internal sealed class FilteredAsyncMessageHandler<T>(AsyncMessageHandler<T> hand
         return new FilterIterator(handler, filters).InvokeRecursiveAsync(message, cancellationToken);
     }
 
-    struct FilterIterator(AsyncMessageHandler<T> handler, IMessageFilter<T>[] filters)
+    sealed class FilterIterator
     {
+        readonly AsyncMessageHandler<T> handler;
+        readonly IMessageFilter<T>[] filters;
+        readonly Func<T, CancellationToken, ValueTask> invokeDelegate;
+
         int index;
+
+        public FilterIterator(AsyncMessageHandler<T> handler, IMessageFilter<T>[] filters)
+        {
+            this.handler = handler;
+            this.filters = filters;
+            invokeDelegate = InvokeRecursiveAsync;
+        }
 
         public ValueTask InvokeRecursiveAsync(T message, CancellationToken cancellationToken)
         {
             if (MoveNextFilter(out var filter))
             {
-                return filter.InvokeAsync(message, cancellationToken, InvokeRecursiveAsync);
+                return filter.InvokeAsync(message, cancellationToken, invokeDelegate);
             }
 
-            return handler.HandleAsync(message);
+            return handler.HandleAsync(message, cancellationToken);
         }
 
         bool MoveNextFilter(out IMessageFilter<T> next)
