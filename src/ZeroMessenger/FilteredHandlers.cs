@@ -47,6 +47,7 @@ internal sealed class FilteredMessageHandler<T>(MessageHandler<T> handler, IMess
         {
             iterator.handler = null;
             iterator.filters = null;
+            iterator.index = 0;
             pool.Push(iterator);
         }
 
