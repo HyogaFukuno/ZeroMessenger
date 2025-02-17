@@ -78,21 +78,34 @@ public class MessageBroker<T> : IMessagePublisher<T>, IMessageSubscriber<T>, IDi
         {
             case AsyncPublishStrategy.Parallel:
                 {
-                    using var list = new PooledList<AsyncMessageHandler<T>>(8);
+                    var list = new PooledList<AsyncMessageHandler<T>>(8);
+                    AsyncMessageHandler<T>[]? result = null;
 
-                    var node = asyncHandlers.Root;
-                    var version = asyncHandlers.GetVersion();
-
-                    while (node != null)
+                    try
                     {
-                        if (node.Version > version) break;
-                        list.Add(Unsafe.As<AsyncMessageHandler<T>>(node));
-                        node = node.NextNode;
+                        var node = asyncHandlers.Root;
+                        var version = asyncHandlers.GetVersion();
+
+                        while (node != null)
+                        {
+                            if (node.Version > version) break;
+                            list.Add(Unsafe.As<AsyncMessageHandler<T>>(node));
+                            node = node.NextNode;
+                        }
+
+                        if (list.Count > 0)
+                        {
+                            result = list.AsSpan().ToArray();
+                        }
+                    }
+                    finally
+                    {
+                        list.Dispose();
                     }
 
-                    if (list.Count > 0)
+                    if (result != null)
                     {
-                        await new ValueTaskWhenAll<T>(list.AsSpan().ToArray(), message, cancellationToken);
+                        await new ValueTaskWhenAll<T>(result, message, cancellationToken);
                     }
                 }
                 break;
