@@ -21,4 +21,10 @@ public static class MessageSubscriberExtensions
     {
         return subscriber.SubscribeAwait(new AnonymousAsyncMessageHandler<T>(handler), subscribeStrategy);
     }
+    
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static IDisposable SubscribeAwait<T, TState>(this IMessageSubscriber<T> subscriber, TState state, Func<T, TState, CancellationToken, ValueTask> handler, AsyncSubscribeStrategy subscribeStrategy = AsyncSubscribeStrategy.Sequential)
+    {
+        return subscriber.SubscribeAwait(new AnonymousAsyncMessageHandler<T, TState>(state, handler), subscribeStrategy);
+    }
 }
