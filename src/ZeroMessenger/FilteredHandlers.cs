@@ -104,6 +104,11 @@ internal sealed class FilteredAsyncMessageHandler<T>(AsyncMessageHandler<T> hand
         }
     }
 
+    protected override void DisposeCore()
+    {
+        handler.Dispose();
+    }
+
     sealed class FilterIterator
     {
         static readonly ConcurrentStack<FilterIterator> pool = new();
@@ -127,6 +132,7 @@ internal sealed class FilteredAsyncMessageHandler<T>(AsyncMessageHandler<T> hand
         {
             iterator.handler = null;
             iterator.filters = null;
+            iterator.index = 0;
             pool.Push(iterator);
         }
 
