@@ -23,3 +23,11 @@ internal sealed class AnonymousAsyncMessageHandler<T>(Func<T, CancellationToken,
         return handler(message, cancellationToken);
     }
 }
+
+internal sealed class AnonymousAsyncMessageHandler<T, TState>(TState state, Func<T, TState, CancellationToken, ValueTask> handler) : AsyncMessageHandler<T>
+{
+    protected override ValueTask HandleAsyncCore(T message, CancellationToken cancellationToken = default)
+    {
+        return handler(message, state, cancellationToken);
+    }
+}
